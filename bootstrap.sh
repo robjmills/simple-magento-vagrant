@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SAMPLE_DATA=$1
-MAGE_VERSION="1.9.1.0"
+MAGE_VERSION="1.9"
 DATA_VERSION="1.9.0.0"
 
 # Update Apt
@@ -14,6 +14,12 @@ apt-get install -y apache2
 apt-get install -y php5
 apt-get install -y libapache2-mod-php5
 apt-get install -y php5-mysqlnd php5-curl php5-xdebug php5-gd php5-intl php-pear php5-imap php5-mcrypt php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl php-soap
+
+# Install Misc Packages
+# --------------------
+apt-get install zip 
+apt-get install unzip 
+apt-get install vim 
 
 php5enmod mcrypt
 
@@ -65,17 +71,19 @@ mysql -u root -e "FLUSH PRIVILEGES"
 # Magento
 # --------------------
 # http://www.magentocommerce.com/wiki/1_-_installation_and_configuration/installing_magento_via_shell_ssh
+# https://github.com/OpenMage/magento-mirror/archive/magento-1.9.zip
 
 # Download and extract
 if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   cd /vagrant/httpdocs
-  wget http://www.magentocommerce.com/downloads/assets/${MAGE_VERSION}/magento-${MAGE_VERSION}.tar.gz
-  tar -zxvf magento-${MAGE_VERSION}.tar.gz
-  mv magento/* magento/.htaccess .
+  wget https://github.com/OpenMage/magento-mirror/archive/magento-${MAGE_VERSION}.zip
+  unzip magento-${MAGE_VERSION}
+  mv magento-mirror-magento-1.9/* magento-mirror-magento-1.9/.htaccess .
   chmod -R o+w media var
   chmod o+w app/etc
   # Clean up downloaded file and extracted dir
-  rm -rf magento*
+  rm -rf magento-mirror-magento-1.9*
+  rm -rf magento-${MAGE_VERSION}
 fi
 
 
