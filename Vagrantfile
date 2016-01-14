@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # To install store sample data
-sample_data = "false"
+sample_data = "true"
 
 Vagrant.configure("2") do |config|
   # All Vagrant configuration is done here. The most common configuration

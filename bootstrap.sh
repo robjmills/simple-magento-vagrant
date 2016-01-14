@@ -2,7 +2,7 @@
 
 SAMPLE_DATA=$1
 MAGE_VERSION="1.9"
-DATA_VERSION="1.9.0.0"
+DATA_VERSION="1.9.1.0"
 
 # Update Apt
 # --------------------
@@ -20,6 +20,7 @@ apt-get install -y php5-mysqlnd php5-curl php5-xdebug php5-gd php5-intl php-pear
 apt-get install zip 
 apt-get install unzip 
 apt-get install vim 
+apt-get install p7zip-full
 
 php5enmod mcrypt
 
@@ -70,13 +71,10 @@ mysql -u root -e "FLUSH PRIVILEGES"
 
 # Magento
 # --------------------
-# http://www.magentocommerce.com/wiki/1_-_installation_and_configuration/installing_magento_via_shell_ssh
-# https://github.com/OpenMage/magento-mirror/archive/magento-1.9.zip
-
 # Download and extract
 if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   cd /vagrant/httpdocs
-  wget https://github.com/OpenMage/magento-mirror/archive/magento-${MAGE_VERSION}.zip
+  wget -q https://github.com/OpenMage/magento-mirror/archive/magento-${MAGE_VERSION}.zip
   unzip magento-${MAGE_VERSION}
   mv magento-mirror-magento-1.9/* magento-mirror-magento-1.9/.htaccess .
   chmod -R o+w media var
@@ -84,6 +82,8 @@ if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   # Clean up downloaded file and extracted dir
   rm -rf magento-mirror-magento-1.9*
   rm -rf magento-${MAGE_VERSION}
+else
+  echo "Not downloading Magento"
 fi
 
 
@@ -91,16 +91,18 @@ fi
 if [[ $SAMPLE_DATA == "true" ]]; then
   cd /vagrant
 
-  if [[ ! -f "/vagrant/magento-sample-data-${DATA_VERSION}.tar.gz" ]]; then
+  if [[ ! -f "/vagrant/compressed-magento-sample-data-${DATA_VERSION}.tar.7z" ]]; then
     # Only download sample data if we need to
-    wget http://www.magentocommerce.com/downloads/assets/${DATA_VERSION}/magento-sample-data-${DATA_VERSION}.tar.gz
+    wget -q https://raw.githubusercontent.com/Vinai/compressed-magento-sample-data/${DATA_VERSION}/compressed-magento-sample-data-${DATA_VERSION}.tar.7z
   fi
 
-  tar -zxvf magento-sample-data-${DATA_VERSION}.tar.gz
+  7z x -so compressed-magento-sample-data-${DATA_VERSION}.tar.7z | tar xf - -C .
   cp -R magento-sample-data-${DATA_VERSION}/media/* httpdocs/media/
   cp -R magento-sample-data-${DATA_VERSION}/skin/*  httpdocs/skin/
   mysql -u root magentodb < magento-sample-data-${DATA_VERSION}/magento_sample_data_for_${DATA_VERSION}.sql
   rm -rf magento-sample-data-${DATA_VERSION}
+else
+  echo "Not installing sample data"
 fi
 
 
@@ -108,19 +110,25 @@ fi
 if [ ! -f "/vagrant/httpdocs/app/etc/local.xml" ]; then
   cd /vagrant/httpdocs
   sudo /usr/bin/php -f install.php -- --license_agreement_accepted yes \
-  --locale en_US --timezone "America/Los_Angeles" --default_currency USD \
+  --locale en_US --timezone "Europe/London" --default_currency GBP \
   --db_host localhost --db_name magentodb --db_user magentouser --db_pass password \
   --url "http://127.0.0.1:8080/" --use_rewrites yes \
   --use_secure no --secure_base_url "http://127.0.0.1:8080/" --use_secure_admin no \
   --skip_url_validation yes \
   --admin_lastname Owner --admin_firstname Store --admin_email "admin@example.com" \
-  --admin_username admin --admin_password password123123
+  --admin_username admin --admin_password password123
   /usr/bin/php -f shell/indexer.php reindexall
+else
+  echo "Not running installer"
 fi
 
 # Install n98-magerun
 # --------------------
-cd /vagrant/httpdocs
-wget https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar
-chmod +x ./n98-magerun.phar
-sudo mv ./n98-magerun.phar /usr/local/bin/
+if [ ! -f "/usr/local/bin/n98-magerun.phar" ]; then
+  cd /vagrant/httpdocs
+  wget -q https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar
+  chmod +x ./n98-magerun.phar
+  sudo mv ./n98-magerun.phar /usr/local/bin/
+else
+  echo "Not installing Magerun"
+fi
