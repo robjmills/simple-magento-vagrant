@@ -20,7 +20,7 @@ A VERY simple Magento environment provisioner for [Vagrant](http://www.vagrantup
 
 * Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * Install [Vagrant](http://www.vagrantup.com/)
-* Clone or [download](https://github.com/r-baker/simple-magento-vagrant/archive/master.zip) this repository to the root of your project directory `git clone https://github.com/r-baker/simple-magento-vagrant.git`
+* Clone or [download](https://github.com/robjmills/simple-magento-vagrant/archive/master.zip) this repository to the root of your project directory `git clone https://github.com/r-baker/simple-magento-vagrant.git`
 * In your project directory, run `vagrant up`
 
 The first time you run this, Vagrant will download the bare Ubuntu box image. This can take a little while as the image is a few-hundred Mb. This is only performed once.
@@ -31,7 +31,7 @@ Vagrant will configure the base system before downloading Magento and running th
 
 * In your browser, head to `127.0.0.1:8080`
 * Magento CMS is accessed at `127.0.0.1:8080/admin`
-* User: `admin` Password: `password123123`
+* User: `admin` Password: `password123`
 * Access the virtual machine directly using `vagrant ssh`
 * When you're done `vagrant halt`
 
